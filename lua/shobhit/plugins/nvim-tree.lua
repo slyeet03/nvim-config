@@ -1,39 +1,54 @@
-local setup, nvimtree = pcall(require, "nvim-tree")
-if not setup then
-    return
-end
+return {
+  "nvim-tree/nvim-tree.lua",
+  dependencies = "nvim-tree/nvim-web-devicons",
+  config = function()
+    local nvimtree = require("nvim-tree")
 
--- recommend settings from nvim-tree documentaion
-vim.g.loaded = 1
-vim.g.loaded_netrwPlugin = 1
+    -- recommended settings from nvim-tree documentation
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
 
--- change color for arrows in tree to light blue
-vim.cmd([[ highlight NvimTreeIndentMarker guifg=#3FC5FF ]])
-
--- configure nvim-tree
-nvimtree.setup({
-  -- change folder arrow icons
-  renderer = {
-    icons = {
-      glyphs = {
-        folder = {
-          arrow_closed = "🡢", -- arrow when folder is closed
-          arrow_open = "🡣", -- arrow when folder is open
+    nvimtree.setup({
+      view = {
+        width = 30,
+        relativenumber = true,
+      },
+      -- change folder arrow icons
+      renderer = {
+        indent_markers = {
+          enable = true,
+        },
+        icons = {
+          glyphs = {
+            folder = {
+              arrow_closed = "", -- arrow when folder is closed
+              arrow_open = "", -- arrow when folder is open
+            },
+          },
         },
       },
-    },
-  },
-  -- disable window_picker for
-  -- explorer to work well with
-  -- window splits
-  actions = {
-    open_file = {
-      window_picker = {
-        enable = false,
+      -- disable window_picker for
+      -- explorer to work well with
+      -- window splits
+      actions = {
+        open_file = {
+          window_picker = {
+            enable = false,
+          },
+        },
       },
-    },
-  },
-  -- 	git = {
-  -- 		ignore = false,
-  -- 	},
-})
+      filters = {
+        custom = { ".DS_Store" },
+      },
+      git = {
+        ignore = false,
+      },
+    })
+
+    -- set keymaps
+    local keymap = vim.keymap -- for conciseness
+
+    keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" }) -- toggle file explorer
+    keymap.set("n", "<leader>re", "<cmd>NvimTreeRefresh<CR>", { desc = "Refresh file explorer" }) -- refresh file explorer
+  end
+}
