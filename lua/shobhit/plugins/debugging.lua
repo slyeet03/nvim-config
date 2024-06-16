@@ -1,39 +1,19 @@
--- debug.lua
---
--- Shows how to use the DAP plugin to debug your code.
---
-
 return {
-	-- NOTE: Yes, you can install new plugins here!
 	"mfussenegger/nvim-dap",
-	-- NOTE: And you can specify dependencies as well
 	dependencies = {
-		-- Creates a beautiful debugger UI
 		"rcarriga/nvim-dap-ui",
-
-		-- Required dependency for nvim-dap-ui
 		"nvim-neotest/nvim-nio",
-
-		-- Installs the debug adapters for you
+		"nvim-telescope/telescope-dap.nvim",
+		"theHamsta/nvim-dap-virtual-text",
 		"jay-babu/mason-nvim-dap.nvim",
-
-		-- Add your own debuggers here
 	},
 	config = function()
 		local dap = require("dap")
 		local dapui = require("dapui")
 
 		require("mason-nvim-dap").setup({
-			-- Makes a best effort to setup the various debuggers with
-			-- reasonable debug configurations
 			automatic_installation = true,
-
-			-- You can provide additional configuration to the handlers,
-			-- see mason-nvim-dap README for more information
 			handlers = {},
-
-			-- You'll need to check that you have the required things installed
-			-- online, please don't ask me how to install them :)
 			ensure_installed = {
 				-- Update this to ensure that you have the debuggers for the langs you want
 			},
@@ -48,27 +28,69 @@ return {
 		vim.keymap.set("n", "<leader>dB", function()
 			dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
 		end, { desc = "Debug: Set Breakpoint" })
-
 		-- Dap UI setup
 		-- For more information, see |:help nvim-dap-ui|
 		dapui.setup({
-			-- Set icons to characters that are more likely to work in every terminal.
-			--    Feel free to remove or use ones that you like more! :)
-			--    Don't feel like these are good choices.
-			icons = { expanded = "▾", collapsed = "▸", current_frame = "*" },
-			controls = {
-				icons = {
-					pause = "⏸",
-					play = "▶",
-					step_into = "⏎",
-					step_over = "⏭",
-					step_out = "⏮",
-					step_back = "b",
-					run_last = "▶▶",
-					terminate = "⏹",
-					disconnect = "⏏",
+			icons = { expanded = "▾", collapsed = "▸", current_frame = "»" },
+			mappings = {
+				-- Use a table to apply multiple mappings
+				expand = { "<CR>", "<2-LeftMouse>" },
+				open = "o",
+				remove = "d",
+				edit = "e",
+				repl = "r",
+				toggle = "t",
+			},
+			layouts = {
+				{
+					elements = {
+						"scopes",
+						"breakpoints",
+						"stacks",
+						-- 'watches',
+					},
+					size = 30,
+					position = "left",
+				},
+				{
+					elements = {
+						"repl",
+					},
+					size = 10,
+					position = "bottom",
+				},
+				-- {
+				-- 	elements = {
+				-- 		"console",
+				-- 	},
+				-- 	size = 10,
+				-- 	position = "bottom",
+				-- },
+			},
+			floating = {
+				max_height = nil, -- These can be integers or a float between 0 and 1.
+				max_width = nil, -- Floats will be treated as percentage of your screen.
+				border = "rounded", -- Border style. Can be "single", "double" or "rounded"
+				mappings = {
+					close = { "q", "<Esc>" },
 				},
 			},
+			controls = {
+				enabled = true,
+				-- Display controls in this element
+				element = "repl",
+				icons = {
+					pause = "",
+					play = "",
+					step_into = "",
+					step_over = "",
+					step_out = "",
+					step_back = "",
+					run_last = "",
+					terminate = "",
+				},
+			},
+			windows = { indent = 1 },
 		})
 
 		-- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
@@ -77,6 +99,32 @@ return {
 		dap.listeners.after.event_initialized["dapui_config"] = dapui.open
 		dap.listeners.before.event_terminated["dapui_config"] = dapui.close
 		dap.listeners.before.event_exited["dapui_config"] = dapui.close
+
+		vim.fn.sign_define("DapBreakpoint", { text = "🟥", texthl = "", linehl = "", numhl = "" })
+		vim.fn.sign_define("DapStopped", { text = "▶️", texthl = "", linehl = "", numhl = "" })
+		vim.keymap.set("n", "<leader>dq", function()
+			require("dap").close()
+			dapui.close()
+		end, { desc = "Close Session" })
+
+		vim.keymap.set("n", "<leader>ddr", function()
+			require("dap").repl.toggle()
+		end, { desc = "REPL" })
+		vim.keymap.set("n", "<leader>dds", function()
+			require("dapui").float_element("scopes")
+		end, { desc = "Scopes" })
+		vim.keymap.set("n", "<leader>ddt", function()
+			require("dapui").float_element("stacks")
+		end, { desc = "Threads" })
+		vim.keymap.set("n", "<leader>ddu", function()
+			require("dapui").toggle()
+		end, { desc = "Toggle Debugger UI" })
+		vim.keymap.set("n", "<leader>ddw", function()
+			require("dapui").float_element("watches")
+		end, { desc = "Watches" })
+		vim.keymap.set("n", "<leader>ddx", function()
+			require("dap.ui.widgets").hover()
+		end, { desc = "Inspect" })
 
 		dap.adapters.cppdbg = {
 			id = "cppdbg",
@@ -92,23 +140,18 @@ return {
 				name = "Launch file",
 				type = "cppdbg",
 				request = "launch",
+				externalConsole = true,
 				program = function()
 					return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
 				end,
 				cwd = "${workspaceFolder}",
 				stopAtEntry = true,
-				setupCommands = {
-					{
-						text = "-enable-pretty-printing",
-						description = "enable pretty printing",
-						ignoreFailures = false,
-					},
-				},
 			},
 			{
 				name = "Attach to gdbserver :1234",
 				type = "cppdbg",
 				request = "launch",
+				externalConsole = true,
 				MIMode = "gdb",
 				miDebuggerServerAddress = "localhost:1234",
 				miDebuggerPath = "/usr/bin/gdb",
@@ -118,7 +161,6 @@ return {
 				end,
 			},
 		}
-
 		dap.configurations.c = dap.configurations.cpp
 		dap.configurations.rust = dap.configurations.cpp
 	end,
