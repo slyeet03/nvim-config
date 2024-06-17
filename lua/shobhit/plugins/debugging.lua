@@ -45,16 +45,22 @@ return {
 				{
 					elements = {
 						"scopes",
-						"breakpoints",
-						"stacks",
 					},
 					size = 30,
 					position = "left",
 				},
 				{
 					elements = {
-						"repl",
+						"stacks",
+						"breakpoints",
 						"watches",
+					},
+					size = 30,
+					position = "right",
+				},
+				{
+					elements = {
+						"repl",
 					},
 					size = 7,
 					position = "bottom",
