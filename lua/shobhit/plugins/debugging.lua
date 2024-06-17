@@ -47,7 +47,6 @@ return {
 						"scopes",
 						"breakpoints",
 						"stacks",
-						-- 'watches',
 					},
 					size = 30,
 					position = "left",
@@ -55,17 +54,11 @@ return {
 				{
 					elements = {
 						"repl",
+						"watches",
 					},
-					size = 10,
+					size = 7,
 					position = "bottom",
 				},
-				-- {
-				-- 	elements = {
-				-- 		"console",
-				-- 	},
-				-- 	size = 10,
-				-- 	position = "bottom",
-				-- },
 			},
 			floating = {
 				max_height = nil, -- These can be integers or a float between 0 and 1.
