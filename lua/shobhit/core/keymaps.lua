@@ -35,3 +35,6 @@ keymap.set("n", "=", "<cmd>vertical resize +5<CR>") -- make the window biger ver
 keymap.set("n", "-", "<cmd>vertical resize -5<CR>") -- make the window smaller vertically
 keymap.set("n", "+", "<cmd>horizontal resize +2<CR>") -- make the window bigger horizontally by pressing shift and =
 keymap.set("n", "_", "<cmd>horizontal resize -2<CR>") -- make the window smaller horizontally by pressing shift and -
+
+keymap.set("n", "<C-s>", ":wa<CR>", { desc = "Save all files" })
+keymap.set("n", "<leader><C-s>", ":w<CR>", { desc = "Save current file" })
