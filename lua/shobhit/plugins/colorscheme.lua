@@ -39,10 +39,19 @@ return {
 	-- 		vim.cmd("colorscheme oxocarbon")
 	-- 	end,
 	-- },
+	-- {
+	-- 	"EdenEast/nightfox.nvim",
+	-- 	config = function()
+	-- 		vim.cmd("colorscheme carbonfox")
+	-- 	end,
+	-- },
 	{
-		"EdenEast/nightfox.nvim",
+		"polirritmico/monokai-nightasty.nvim",
+		lazy = false,
+		priority = 1000,
 		config = function()
-			vim.cmd("colorscheme carbonfox")
+			vim.opt.background = "dark" -- default to dark or light style
+			vim.cmd.colorscheme("monokai-nightasty")
 		end,
 	},
 }
